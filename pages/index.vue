@@ -4,32 +4,49 @@
             <h1>It's day {{day}}</h1>
             <div class="input">
                 <div>
-                    <span>Link</span>
+                    <span>Live Link (Optional)</span>
                 </div>
                 <input type="url" v-model="form.link" placeholder="https://www.example.com">
             </div>
             <div class="input">
                 <div>
-                    <span>Description</span>
+                    <span>Repository Link (Optional)</span>
                 </div>
-                <textarea v-model="form.desc" placeholder="Describe your work"></textarea>
+                <input type="url" v-model="form.repo" placeholder="https://www.example.com">
+            </div>
+            <div class="input">
+                <div>
+                    <span>Description (Required)</span>
+                </div>
+                <textarea v-model="form.desc" required placeholder="Describe your work"></textarea>
             </div>
             <div class="input">
                 <div>
                     <span>Status</span>
                 </div>
-                <div class="flex items-center gap-2"><b class="font-semibold text-green-500">Completed</b> <input v-model="form.completed" type="checkbox"> <b class="font-semibold text-red-500">Development</b></div>
+                <div class="flex items-center gap-2"><b class="font-semibold text-green-500">Production</b> <input v-model="form.production" type="checkbox"> <b class="font-semibold text-red-500">Development</b></div>
             </div>
-            <Opt txt="Frameworks/Libraries" :opts="frameworks"/>
-            <Opt txt="Tools/Hosting" :opts="tools"/>
+            <div class="input">
+                <div>
+                    <span>Day</span>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <div class="flex w-full">
+                        <i class="not-italic inline-block text-center" style="width:calc(100% /30)" :class="i == form.day ? 'text-blue-500 font-semibold' : ''" v-for="i in count">{{ i }}</i>
+                    </div>
+                    <input type="range" v-model="form.day" min="1" max="30">
+                </div>
+            </div>
+            <Opt txt="Frameworks & Libraries" :opts="frameworks"/>
+            <Opt txt="Tools (Hosting & Database)" :opts="tools"/>
             <Opt txt="Languages" :opts="languages"/>
-            
             <div class="flex items-center">
                 <h1 class="w-1/2 items-center">Files (1MB per file)</h1>
                 <div class="w-1/2 items-center flex justify-end">
-                    <button type="button" @click="input.click" class="opt select flex items-center gap-1">Add <i class="material-icons translate-y-0.5 text-base">control_point</i></button>
+                    <button type="button" @click="input.click" class="opt select flex items-center gap-1">Add <i class="material-icons text-base">control_point</i></button>
                 </div>
             </div>
+            <i v-if="error.file" class="error">Upload at least one file</i>
             <div class="grid grid-cols-1 gap-2">
                 <div v-for="file in files" :key="file.name" class="flex items-start gap-2">
                     <h2 class="material-icons text-5xl">description</h2>
@@ -54,10 +71,17 @@
 </template>
 
 <script setup>
+const count = Array(30).fill(1).map((a,b) => a + b);
+const error = reactive({
+    file: false
+})
+const day = challengeDay();
 const form = reactive({
     link: '',
     desc: '',
-    completed: false,
+    production: false,
+    day,
+    repo: ''
 });
 definePageMeta({
     middleware: function(){
@@ -66,7 +90,6 @@ definePageMeta({
         if(!signed.value) return navigateTo('/signup');
     }
 })
-const day = challengeDay();
 const transform = (array) => reactive(array.sort().map(a => ({txt: a, opt: false})));
 const frameworks = transform(['React.js', 'Vue.js', 'Next.js', 'Nuxt.js', 'Svelte', 'Angular', 'AngularJS', 'TailwindCSS', 'Material UI', 'Vuex', 'Pinia', 'Redux', 'Bootstrap', 'jQuery', 'Express.js', 'Django', 'Laravel', 'Ruby On Rails']);
 const tools = transform(['Firebase', 'Vercel', 'GitHub', 'MongoDB', 'SQL', 'Node.js', 'Netlify', 'React-Native', 'GitLab', 'BitBucket']);
@@ -76,7 +99,7 @@ const input = ref(null);
 const modal = ref(false);
 function addFile({target}){
     const entry = target.files[0];
-    const val = entry.size / (1024 ** 2)
+    const val = entry.size / (1024 ** 2);
     if(val > 1){
         modal.value = val;
         setTimeout(() => modal.value = false, 2000);
@@ -85,7 +108,30 @@ function addFile({target}){
     }
 }
 function submit(){
-    
+    if(!files.length) return error.file = true;
+    const ans = {
+        day: form.day,
+        completed: form.production,
+        desc: `Day ${form.day}\n\n Status: ${form.production ? 'Production' : 'Development'}\n`,
+        files
+    }
+    if(form.link) {
+        ans.link = form.link
+        ans.desc += `Live Link: ${form.link}\n`;
+    };
+    if(form.repo) {
+        ans.repo = form.repo;
+        ans.desc += `Repository Link: ${form.repo}\n`
+    }
+    const filter = (data) => data.filter(a => a.opt).map(a => a.txt);
+    const usedFrameworks = filter(frameworks);
+    if(usedFrameworks.length) ans.desc += `Frameworks & Libraries: ${usedFrameworks.join(', ')}\n`;
+    const usedLang = filter(languages);
+    if(usedLang.length) ans.desc += `Languages: ${usedLang.join(', ')}\n`;
+    const usedTools = filter(tools);
+    if(usedTools.length) ans.desc += `Tools (Hosting & Database): ${usedTools.join(', ')}\n`;
+    ans.desc += `\nDescription: ${form.desc}`;
+    console.log(ans);
 }
 </script>
 
