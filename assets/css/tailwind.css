@@ -14,7 +14,7 @@ body {
     @apply flex flex-col gap-1;
 }
 .form input, .form textarea {
-    @apply bg-dark-el py-2 px-4 rounded-sm focus:outline-none;
+    @apply bg-dark-el py-2 px-4 rounded-md focus:outline-none;
 }
 .form span {
     @apply text-sm font-semibold opacity-70;
