@@ -17,7 +17,7 @@
 @tailwind components;
 @layer components {
     .opt {
-        @apply py-1 px-3 font-semibold mb-3 mr-2 rounded-md bg-dark-el;
+        @apply py-1 px-3 font-semibold mb-3 mr-2 rounded-md bg-dark-el hover:bg-slate-600;
     }
     .opt.select {
         @apply bg-blue-500;
