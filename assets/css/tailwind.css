@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind utilities;
+@tailwind components;
+
+body {
+    @apply bg-dark-bg text-white font-sans;
+}
+
+/* Forms */
+.form {
+    @apply flex flex-col gap-4;
+}
+.form .input {
+    @apply flex flex-col gap-1;
+}
+.form input, .form textarea {
+    @apply bg-dark-el py-2 px-4 rounded-sm focus:outline-none;
+}
+.form span {
+    @apply text-sm font-semibold opacity-70;
+}
+.form i.error {
+    @apply text-red-400 font-semibold text-sm not-italic float-right;
+}
+.form h1 {
+    @apply text-xl font-bold;
+}
